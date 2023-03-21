@@ -1,10 +1,10 @@
 import React from 'react';
 
-function HLSVideoLink({ url, projectVideo, keyShouldbePartofImageInfo }) {
+function HLSVideoLink({ projectVideo, video }) {
     return (
         <div style={{ background: "black", color:"white", textDecoration:"none", width:"400px", wordBreak:'break-all' }}>
-            <a href="#" onClick={() => projectVideo(url, keyShouldbePartofImageInfo)}>
-                {url}
+            <a href="#" onClick={() => projectVideo(video)}>
+                {video.title}
             </a>
         </div>
     )

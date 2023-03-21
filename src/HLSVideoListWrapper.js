@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import HLSVideoLink from './HLSVideoLink';
 import HLSVideoPlayer from './HLSVideoPlayer';
 
-function HLSContainer({ playingVideos }) {
+function HLSVideoListWrapper({ playingVideos }) {
     const [selectedId, setSelectedId] = useState(-1);
     const [videoUrl, setVideoUrl] = useState('');
 
@@ -15,11 +14,10 @@ function HLSContainer({ playingVideos }) {
             {playingVideos.map((vid) => (
                 <div style={{ display: "flex", flexWrap: "wrap", flexDirection:"row", border: selectedId===vid.key ? "2px solid red" : "2px solid black" }} onClick={()=>selectedVideo(vid.key)}>
 
-                    <HLSVideoPlayer key={vid.key} url={vid.url}
-                        />
+                    <HLSVideoPlayer key={vid.id} video={vid}/>
                 </div>
             ))}
         </div>
     )
 }
-export default HLSContainer;
+export default HLSVideoListWrapper;
