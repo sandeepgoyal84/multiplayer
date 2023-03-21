@@ -6,12 +6,12 @@ import './App.css';
 // https://www.tutorialspoint.com/how-to-setup-video-js-with-reactjs
 // and 
 // https://videojs.com/guides/react/
-function HLSVideoPlayer({ video }) {
+function HLSVideoPlayer({ video, isSelected }) {
     const videoRef = React.useRef(null);
     const playerRef = React.useRef(null);
     const [volume, setVolume] = useState(0);
     const videoJsOptions = {
-        autoplay: true,
+        autoplay: false,
         controls: true,
         responsive: true,
         fluid: false,
@@ -23,6 +23,7 @@ function HLSVideoPlayer({ video }) {
             type: 'video/mp4'
         }]
     };
+    // useeffect seq no 1
     useEffect(() => {
         // Make sure Video.js player is only initialized once
         if (!playerRef.current) {
@@ -58,6 +59,29 @@ function HLSVideoPlayer({ video }) {
         }
     }, [videoRef]);
 
+    // useeffect seq no 2 -- set volume
+    // reflect slider value as per setted volume
+    useEffect(() => {
+        const player = playerRef.current;
+        if (player) {
+            player.volume(volume);
+        }
+    }, [volume]);
+
+    // useeffect seq no 3 -- start/restart
+    useEffect(() => {
+        const player = playerRef.current;
+        if (player && isSelected) {
+            player.currentTime(0); // 2 minutes into the video            
+            player.pause();
+            //player.posterImage.el.style.display = 'block';
+            player.bigPlayButton.show();
+            player.play();
+        }
+    }, [isSelected]);
+
+
+    // useeffect seq no 4 -- dispose
     // Dispose the Video.js player when the functional component unmounts
     useEffect(() => {
         const player = playerRef.current;
@@ -69,15 +93,6 @@ function HLSVideoPlayer({ video }) {
             }
         };
     }, [playerRef]);
-
-    // reflect slider value as per setted volume
-    useEffect(() => {
-        const player = playerRef.current;
-        if (player) {
-            player.volume(volume);
-        }
-    }, [volume]);
-
     const handleVolume = (e) => {
         setVolume(e.target.value);
     }

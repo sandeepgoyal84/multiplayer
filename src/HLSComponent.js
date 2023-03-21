@@ -55,6 +55,7 @@ const videoData = [{
 }];
 function HLSComponent() {
     const [videoList, setVideoList] = useState([]);
+    const [selectedId, setSelectedId]= useState(-1);
 
     //load data
     useEffect(() => {
@@ -67,7 +68,7 @@ function HLSComponent() {
             videos.push({ ...video, "id": index });
         })
         // set to state variable
-        setVideoList(oldState => [...oldState, ...videos]);
+        setVideoList(oldState => [...videos]);
     }, []);
 
     const [playingVideos, setPlayingVideos] = useState([]);
@@ -76,6 +77,7 @@ function HLSComponent() {
         if (!playingVideos.some(ele => ele.id === video.id)) {
             setPlayingVideos(oldState => [...oldState, video]);
         }
+        setSelectedId(video.id);
     }, [playingVideos]);
     return (
         <div style={{ display: "flex", alignItems: "stretch", padding: "2px", border: "1px solid black" }}>
@@ -86,7 +88,7 @@ function HLSComponent() {
                 ))}
             </div>
             <div style={{ flexGrow: 1, border: "1px solid black", display: "flex", flexDirection: "column" }}>
-                <HLSVideoListWrapper playingVideos={playingVideos} />
+                <HLSVideoListWrapper playingVideos={playingVideos} selectedId={selectedId}/>
             </div>
         </div>
     );
