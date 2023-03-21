@@ -1,0 +1,24 @@
+body{
+  height : 100%;;
+}
+#root{
+  height : 100%;;
+}
+.App {
+  text-align: center;
+}
+#full-area{
+  position: fixed;
+  background: white;
+}
+#content-area{
+  background: white;
+}
+#video-area{
+  background: white;
+  border: 2px solid red;
+}
+.video-wrapper{
+  background: black;
+
+}
