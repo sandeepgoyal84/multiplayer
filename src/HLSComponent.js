@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useRef, useEffect } from 'react';
 import HLSVideoListWrapper from './HLSVideoListWrapper';
 import HLSVideoLink from './HLSVideoLink';
+import './App.css';
 
 
 const videoData = [{
@@ -55,7 +56,7 @@ const videoData = [{
 }];
 function HLSComponent() {
     const [videoList, setVideoList] = useState([]);
-    const [selectedId, setSelectedId]= useState(-1);
+    const [selectedId, setSelectedId] = useState('');
 
     //load data
     useEffect(() => {
@@ -65,12 +66,12 @@ function HLSComponent() {
         let videos = [];
         // add additinal properties
         data.forEach((video, index) => {
-            videos.push({ ...video, "id": index });
+            videos.push({ ...video, "id": "" + index });
         })
         // set to state variable
         setVideoList(oldState => [...videos]);
     }, []);
-
+    const [addVideo, setAddVideo] = useState('');
     const [playingVideos, setPlayingVideos] = useState([]);
 
     const projectVideo = useCallback((video) => {
@@ -79,16 +80,24 @@ function HLSComponent() {
         }
         setSelectedId(video.id);
     }, [playingVideos]);
+    const handleAddVideo = () => {
+        projectVideo({ "src": addVideo, "title": addVideo, "poster": "", id: addVideo });
+        setAddVideo('');
+    }
     return (
-        <div style={{ display: "flex", alignItems: "stretch", padding: "2px", border: "1px solid black" }}>
+        <div style={{ flexGrow: 1, display: "flex", margin: "20px", backgroundColor: "black" }}>
             <div style={{ flexBasis: "400px", display: "flex", flexDirection: "column" }}>
-
-                {videoList.map((video) => (
-                    <HLSVideoLink key={video.id} projectVideo={projectVideo} video={video} />
-                ))}
+                <div style={{ flexGrow: 1, display: "flex", margin: "10px", flexDirection: "column" }}>
+                    {videoList.map((video) => (
+                        <HLSVideoLink key={video.id} projectVideo={projectVideo} video={video} />
+                    ))}</div>
+                <div style={{ display: "flex", flexDirection: "column", margin: "50px 5px 10px 5px", backgroundColor: `rgb(50, 5, 5)` }}>
+                    <input className='input' style={{ margin: "10px" }} type='text' value={addVideo} placeholder="Enter video url" onChange={e => setAddVideo(e.target.value)} />
+                    <button className='button' style={{ margin: "10px" }} onClick={handleAddVideo}>play custom video</button>
+                </div>
             </div>
-            <div style={{ flexGrow: 1, border: "1px solid black", display: "flex", flexDirection: "column" }}>
-                <HLSVideoListWrapper playingVideos={playingVideos} selectedId={selectedId}/>
+            <div style={{ flexGrow: 1, borderLeft: "20px solid gray", display: "flex", flexDirection: "column" }}>
+                <HLSVideoListWrapper playingVideos={playingVideos} selectedId={selectedId} />
             </div>
         </div>
     );

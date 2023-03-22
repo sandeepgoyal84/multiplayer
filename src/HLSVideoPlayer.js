@@ -99,10 +99,10 @@ function HLSVideoPlayer({ video, isSelected }) {
     return (
         <div style={{ display: "flex", flexDirection: "column" }}>
 
-            <div style={{ background: "black", color: "white", textDecoration: "none", width: "400px", wordBreak: 'break-all' }}>
+            <div style={{ color: "white", textDecoration: "none", width: "400px", wordBreak: 'break-all' }}>
                 {video.title}
             </div>
-            <div style={{ height: "200px", width: "400px", display: 'flex', flexDirection: 'column', background: "black" }}>
+            <div style={{ height: "200px", width: "400px", display: 'flex', flexDirection: 'column' }}>
                 <div ref={videoRef} />
                 <div style={{ display: 'flex', justifyContent: "center", alignContent: 'baseline', background: "blue" }}>
                     <label style={{ color: "white", fontFamily: "verdana", fontSize: "0.75em" }} htmlFor="volume-control">Volume:</label>

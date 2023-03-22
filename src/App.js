@@ -4,7 +4,9 @@ import './App.css';
 
 function App() {
   return (
-    <HLSComponent />
+    <div style={{ height: "900px", display: "flex" }}>
+      <HLSComponent />
+    </div>
   );
 }
 

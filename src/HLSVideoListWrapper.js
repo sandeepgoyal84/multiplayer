@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import HLSVideoPlayer from './HLSVideoPlayer';
 
 function HLSVideoListWrapper({ playingVideos, selectedId }) {
-    const [highLightId, setHighLightId] = useState(-1);
+    const [highLightId, setHighLightId] = useState('');
     const [videoUrl, setVideoUrl] = useState('');
 
     const highLightVideo = (id) => {
