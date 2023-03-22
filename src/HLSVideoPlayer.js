@@ -20,7 +20,6 @@ function HLSVideoPlayer({ video, isSelected }) {
         html5: { hls: { overrideNative: true } },
         sources: [{
             src: video.src,
-            type: 'video/mp4'
         }]
     };
     // useeffect seq no 1

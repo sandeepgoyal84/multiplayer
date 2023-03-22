@@ -4,7 +4,7 @@ import HLSVideoLink from './HLSVideoLink';
 
 
 const videoData = [{
-    "src": "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "src": "https://da2ys1sxfc2en.cloudfront.net/out/v1/a1c2fee066ae458ea246fde9e80576a7/CMAF_HLS/index.m3u8",
     "poster": "https://storage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg",
     "title": "BigBuckBunny.mp4"
 },
