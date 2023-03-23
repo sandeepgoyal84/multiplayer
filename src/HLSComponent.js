@@ -56,7 +56,7 @@ const videoData = [{
 }];
 function HLSComponent() {
     const [videoList, setVideoList] = useState([]);
-    const [selectedId, setSelectedId] = useState('');
+    const [selectedId, setSelectedId] = useState({});
 
     //load data
     useEffect(() => {
@@ -78,7 +78,7 @@ function HLSComponent() {
         if (!playingVideos.some(ele => ele.id === video.id)) {
             setPlayingVideos(oldState => [...oldState, video]);
         }
-        setSelectedId(video.id);
+        setSelectedId({ "id": video.id });
     }, [playingVideos]);
     const handleAddVideo = () => {
         projectVideo({ "src": addVideo, "title": addVideo, "poster": "", id: addVideo });

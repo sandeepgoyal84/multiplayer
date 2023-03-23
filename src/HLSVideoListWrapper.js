@@ -10,7 +10,7 @@ function HLSVideoListWrapper({ playingVideos, selectedId, onClose }) {
         setHighLightId(id);
     }
     useEffect(() => {
-        setHighLightId(selectedId);
+        setHighLightId(selectedId.id);
     }, [selectedId]);
 
     return (
@@ -18,7 +18,7 @@ function HLSVideoListWrapper({ playingVideos, selectedId, onClose }) {
             {playingVideos.map((vid) => (
                 <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "row", border: highLightId === vid.id ? "2px solid red" : "2px solid black" }} onClick={() => highLightVideo(vid.id)}>
 
-                    <HLSVideoPlayer key={vid.id} video={vid} isSelected={selectedId === vid.id} onClose={onClose} />
+                    <HLSVideoPlayer key={vid.id} video={vid} selectedId={selectedId} onClose={onClose} />
                 </div>
             ))}
         </div>

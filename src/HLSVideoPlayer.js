@@ -6,12 +6,12 @@ import './App.css';
 // https://www.tutorialspoint.com/how-to-setup-video-js-with-reactjs
 // and 
 // https://videojs.com/guides/react/
-function HLSVideoPlayer({ video, isSelected, onClose }) {
+function HLSVideoPlayer({ video, selectedId, onClose }) {
     const videoRef = React.useRef(null);
     const playerRef = React.useRef(null);
     const [volume, setVolume] = useState(0);
     const videoJsOptions = {
-        autoplay: false,
+        autoplay: true,
         controls: true,
         responsive: true,
         fluid: false,
@@ -22,43 +22,8 @@ function HLSVideoPlayer({ video, isSelected, onClose }) {
             src: video.src,
         }]
     };
-    // useeffect seq no 1
-    useEffect(() => {
-        // Make sure Video.js player is only initialized once
-        if (!playerRef.current) {
-            // The Video.js player needs to be _inside_ the component el for React 18 Strict Mode. 
-            const videoElement = document.createElement("video-js");
 
-            videoElement.classList.add('video-js');
-            videoElement.classList.add('vjs-big-playcentered');
-            videoRef.current.appendChild(videoElement);
-
-            const player = playerRef.current = videojs(videoElement, videoJsOptions, () => {
-                videojs.log('player is ready');
-                // You can handle player events here, for example:
-                player.on('waiting', () => {
-                    videojs.log('player is waiting');
-                });
-
-                player.on('dispose', () => {
-                    videojs.log('player will dispose');
-                });
-                player.on('volumechange', () => {
-                    videojs.log('volume changed');
-                    videojs.log(player.volume());
-                    setVolume(player.volume());
-                });
-            });
-
-            // You could update an existing player in the `else` block here
-            // on prop change, for example:
-
-            //set volume
-            player.volume(volume);
-        }
-    }, [videoRef]);
-
-    // useeffect seq no 2 -- set volume
+    // useeffect seq no 1 -- set volume
     // reflect slider value as per setted volume
     useEffect(() => {
         const player = playerRef.current;
@@ -67,28 +32,61 @@ function HLSVideoPlayer({ video, isSelected, onClose }) {
         }
     }, [volume]);
 
-    // useeffect seq no 3 -- start/restart
-    useEffect(() => {
-        const player = playerRef.current;
-        if (player && isSelected) {
-            player.currentTime(0); // 2 minutes into the video            
-            player.pause();
-            //player.posterImage.el.style.display = 'block';
-            player.bigPlayButton.show();
-            player.play();
+    // useeffect seq no 2 -- start/restart
+    useEffect(() => {// Make sure Video.js player is only initialized once
+        if (selectedId.id === video.id) {
+            if (!playerRef.current) {
+                // The Video.js player needs to be _inside_ the component el for React 18 Strict Mode. 
+                constructPlayer();
+            }
+            else {
+                disposePlayer();
+                constructPlayer();
+            }
         }
-    }, [isSelected]);
+    }, [selectedId]);
 
 
-    // useeffect seq no 4 -- dispose
+    // useeffect seq no 3 -- dispose
     // Dispose the Video.js player when the functional component unmounts
     useEffect(() => {
         return () => {
-            disposePlayer(playerRef);
+            disposePlayer();
         }
-    }, [playerRef]);
+    }, []);
 
-    function disposePlayer(playerRef) {
+    function constructPlayer() {
+        const videoElement = document.createElement("video-js");
+
+        videoElement.classList.add('video-js');
+        videoElement.classList.add('vjs-big-playcentered');
+        videoRef.current.appendChild(videoElement);
+        videoElement.disablepictureinpicture = true;
+
+        const player = playerRef.current = videojs(videoElement, videoJsOptions, () => {
+            videojs.log('player is ready');
+            // You can handle player events here, for example:
+            player.on('waiting', () => {
+                videojs.log('player is waiting');
+            });
+
+            player.on('dispose', () => {
+                videojs.log('player will dispose');
+            });
+            player.on('volumechange', () => {
+                videojs.log('volume changed');
+                videojs.log(player.volume());
+                setVolume(player.volume());
+            });
+        });
+
+        // You could update an existing player in the `else` block here
+        // on prop change, for example:
+        //set volume
+        player.volume(volume);
+    }
+
+    function disposePlayer() {
         const player = playerRef.current;
         if (player && !player.isDisposed()) {
             player.dispose();
@@ -100,7 +98,7 @@ function HLSVideoPlayer({ video, isSelected, onClose }) {
     }
     const handleClose = () => {
         onClose(video);
-        disposePlayer(playerRef);
+        disposePlayer();
     };
 
     return (
