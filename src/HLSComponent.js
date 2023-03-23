@@ -83,7 +83,11 @@ function HLSComponent() {
     const handleAddVideo = () => {
         projectVideo({ "src": addVideo, "title": addVideo, "poster": "", id: addVideo });
         setAddVideo('');
-    }
+    };
+    const onClose = (vid) => {
+        let filteredArray = playingVideos.filter(item => item.id !== vid.id);
+        setPlayingVideos(filteredArray);
+    };
     return (
         <div style={{ flexGrow: 1, display: "flex", margin: "20px", backgroundColor: "black" }}>
             <div style={{ flexBasis: "400px", display: "flex", flexDirection: "column" }}>
@@ -97,7 +101,7 @@ function HLSComponent() {
                 </div>
             </div>
             <div style={{ flexGrow: 1, borderLeft: "20px solid gray", display: "flex", flexDirection: "column" }}>
-                <HLSVideoListWrapper playingVideos={playingVideos} selectedId={selectedId} />
+                <HLSVideoListWrapper playingVideos={playingVideos} selectedId={selectedId} onClose={onClose} />
             </div>
         </div>
     );

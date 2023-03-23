@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 import './App.css';
@@ -6,7 +6,7 @@ import './App.css';
 // https://www.tutorialspoint.com/how-to-setup-video-js-with-reactjs
 // and 
 // https://videojs.com/guides/react/
-function HLSVideoPlayer({ video, isSelected }) {
+function HLSVideoPlayer({ video, isSelected, onClose }) {
     const videoRef = React.useRef(null);
     const playerRef = React.useRef(null);
     const [volume, setVolume] = useState(0);
@@ -83,24 +83,32 @@ function HLSVideoPlayer({ video, isSelected }) {
     // useeffect seq no 4 -- dispose
     // Dispose the Video.js player when the functional component unmounts
     useEffect(() => {
-        const player = playerRef.current;
-
         return () => {
-            if (player && !player.isDisposed()) {
-                player.dispose();
-                playerRef.current = null;
-            }
-        };
+            disposePlayer(playerRef);
+        }
     }, [playerRef]);
+
+    function disposePlayer(playerRef) {
+        const player = playerRef.current;
+        if (player && !player.isDisposed()) {
+            player.dispose();
+            playerRef.current = null;
+        }
+    }
     const handleVolume = (e) => {
         setVolume(e.target.value);
     }
+    const handleClose = () => {
+        onClose(video);
+        disposePlayer(playerRef);
+    };
 
     return (
         <div style={{ display: "flex", flexDirection: "column" }}>
 
-            <div style={{ color: "white", textDecoration: "none", width: "400px", wordBreak: 'break-all' }}>
-                {video.title}
+            <div style={{ display: "flex", padding: "0px 10px", color: "white", textDecoration: "none", width: "400px", wordBreak: 'break-all' }}>
+                <div style={{ flexGrow: 1 }}>{video.title}</div>
+                <div onClick={handleClose}>{"close"}</div>
             </div>
             <div style={{ height: "200px", width: "400px", display: 'flex', flexDirection: 'column' }}>
                 <div ref={videoRef} />
@@ -119,3 +127,5 @@ function HLSVideoPlayer({ video, isSelected }) {
     )
 }
 export default React.memo(HLSVideoPlayer);
+
+
