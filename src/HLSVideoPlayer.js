@@ -102,24 +102,21 @@ function HLSVideoPlayer({ video, selectedId, onClose }) {
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: "column" }}>
-
-            <div style={{ display: "flex", padding: "0px 10px", color: "white", textDecoration: "none", width: "400px", wordBreak: 'break-all' }}>
+        <div style={{ width: "400px" }}>
+            <div style={{ display: "flex", padding: "0px 10px", color: "white", textDecoration: "none", wordBreak: 'break-all' }}>
                 <div style={{ flexGrow: 1 }}>{video.title}</div>
                 <div onClick={handleClose}>{"close"}</div>
             </div>
-            <div style={{ height: "200px", width: "400px", display: 'flex', flexDirection: 'column' }}>
-                <div ref={videoRef} />
-                <div style={{ display: 'flex', justifyContent: "center", alignContent: 'baseline', background: "blue" }}>
-                    <label style={{ color: "white", fontFamily: "verdana", fontSize: "0.75em" }} htmlFor="volume-control">Volume:</label>
-                    <input type="range"
-                        min="0"
-                        max="1"
-                        step="0.1"
-                        value={volume}
-                        onChange={handleVolume} />
-                    <span>{Math.round(volume * 100)}</span>
-                </div>
+            <div ref={videoRef} />
+            <div style={{ display: 'flex', justifyContent: "center", alignContent: 'baseline', background: "blue" }}>
+                <label style={{ color: "white", fontFamily: "verdana", fontSize: "0.75em" }} htmlFor="volume-control">Volume:</label>
+                <input type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={volume}
+                    onChange={handleVolume} />
+                <span>{Math.round(volume * 100)}</span>
             </div>
         </div>
     )
