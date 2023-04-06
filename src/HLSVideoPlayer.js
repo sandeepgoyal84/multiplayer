@@ -68,8 +68,7 @@ function HLSVideoPlayer({ video, selectedId, onClose }) {
             videojs.log('player is ready');
             // You can handle player events here, for example:
 
-            var AudioContext = window.AudioContext || window.webkitAudioContext;
-            var audioCtx = new AudioContext();         // get access to audio context
+            var audioCtx = new (window.AudioContext || window.webkitAudioContext)();         // get access to audio context
 
             // Wait for window.onload to fire. See crbug.com/112368
             // Our <video> element will be the audio source.
@@ -81,16 +80,18 @@ function HLSVideoPlayer({ video, selectedId, onClose }) {
 
             //config audio analyzer
             const analyser = audioCtx.createAnalyser();
-            source.connect(analyser);
-            analyser.connect(audioCtx.destination);
             analyser.fftSize = 256;
             const bufferLength = analyser.frequencyBinCount,
                 dataArray = new Uint8Array(bufferLength),
                 WIDTH = canvas.width,
                 HEIGHT = canvas.height,
                 barWidth = (WIDTH / bufferLength) * 2.5;
-            let barHeight = null,
-                x = null;
+            analyser.getByteTimeDomainData(dataArray);
+
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            let barHeight = 0,
+                x = 0;
 
             //core logic for the visualizer
             const timeouts = [];
@@ -99,6 +100,7 @@ function HLSVideoPlayer({ video, selectedId, onClose }) {
                 requestAnimationFrame(renderFrame);
                 x = 0;
                 analyser.getByteFrequencyData(dataArray);
+                ctx.clearRect(0, 0, WIDTH, HEIGHT);
                 ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
                 for (let i = 0; i < bufferLength; i++) {
@@ -113,18 +115,18 @@ function HLSVideoPlayer({ video, selectedId, onClose }) {
                     x += barWidth + 1;
 
                     //Allows visualizer to overlay on a background/video by clearing the rects after painting.
-                    let timer = setTimeout(() => {
-                        ctx.clearRect(0, 0, WIDTH, HEIGHT);
-                    }, 50);
-                    timeouts.push(timer);
+                    // let timer = setTimeout(() => {
+                    //     ctx.clearRect(0, 0, WIDTH, HEIGHT);
+                    // }, 50);
+                    // timeouts.push(timer);
                 }
             };
             //Clears the accumulating timeouts.
-            setTimeout(() => {
-                for (let i = 0; i < timeouts.length; i++) {
-                    return clearTimeout(timeouts[i]);
-                }
-            }, 51);
+            // setTimeout(() => {
+            //     for (let i = 0; i < timeouts.length; i++) {
+            //         return clearTimeout(timeouts[i]);
+            //     }
+            // }, 51);
             renderFrame();
 
 
