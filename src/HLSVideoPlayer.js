@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 import './App.css';
@@ -7,8 +7,9 @@ import './App.css';
 // and 
 // https://videojs.com/guides/react/
 function HLSVideoPlayer({ video, selectedId, onClose }) {
-    const videoRef = React.useRef(null);
-    const playerRef = React.useRef(null);
+    const videoRef = useRef(null);
+    const playerRef = useRef(null);
+    const canvasRef = useRef(null);
     const [volume, setVolume] = useState(0);
     const videoJsOptions = {
         autoplay: true,
@@ -56,7 +57,7 @@ function HLSVideoPlayer({ video, selectedId, onClose }) {
     }, []);
 
     function constructPlayer() {
-        const videoElement = document.createElement("video-js");
+        const videoElement = document.createElement("video");
 
         videoElement.classList.add('video-js');
         videoElement.classList.add('vjs-big-playcentered');
@@ -66,6 +67,68 @@ function HLSVideoPlayer({ video, selectedId, onClose }) {
         const player = playerRef.current = videojs(videoElement, videoJsOptions, () => {
             videojs.log('player is ready');
             // You can handle player events here, for example:
+
+            var AudioContext = window.AudioContext || window.webkitAudioContext;
+            var audioCtx = new AudioContext();         // get access to audio context
+
+            // Wait for window.onload to fire. See crbug.com/112368
+            // Our <video> element will be the audio source.
+            var source = audioCtx.createMediaElementSource(videoElement);
+            const canvas = canvasRef.current;//config canvas
+            canvas.width = 380;
+            canvas.height = 150;
+            const ctx = canvas.getContext("2d");
+
+            //config audio analyzer
+            const analyser = audioCtx.createAnalyser();
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount,
+                dataArray = new Uint8Array(bufferLength),
+                WIDTH = canvas.width,
+                HEIGHT = canvas.height,
+                barWidth = (WIDTH / bufferLength) * 2.5;
+            let barHeight = null,
+                x = null;
+
+            //core logic for the visualizer
+            const timeouts = [];
+            const renderFrame = () => {
+                ctx.fillStyle = "rgba(0,0,0,0)";
+                requestAnimationFrame(renderFrame);
+                x = 0;
+                analyser.getByteFrequencyData(dataArray);
+                ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+                for (let i = 0; i < bufferLength; i++) {
+                    //color based upon frequency
+                    barHeight = dataArray[i];
+                    let
+                        r = barHeight + 22 * (i / bufferLength),
+                        g = 333 * (i / bufferLength),
+                        b = 47;
+                    ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+                    ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+
+                    //Allows visualizer to overlay on a background/video by clearing the rects after painting.
+                    let timer = setTimeout(() => {
+                        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+                    }, 50);
+                    timeouts.push(timer);
+                }
+            };
+            //Clears the accumulating timeouts.
+            setTimeout(() => {
+                for (let i = 0; i < timeouts.length; i++) {
+                    return clearTimeout(timeouts[i]);
+                }
+            }, 51);
+            renderFrame();
+
+
+
             player.on('waiting', () => {
                 videojs.log('player is waiting');
             });
@@ -108,6 +171,7 @@ function HLSVideoPlayer({ video, selectedId, onClose }) {
                 <div onClick={handleClose}>{"close"}</div>
             </div>
             <div ref={videoRef} />
+            <canvas ref={canvasRef} className="canvas"></canvas>
             <div style={{ display: 'flex', justifyContent: "center", alignContent: 'baseline', background: "blue" }}>
                 <label style={{ color: "white", fontFamily: "verdana", fontSize: "0.75em" }} htmlFor="volume-control">Volume:</label>
                 <input type="range"
