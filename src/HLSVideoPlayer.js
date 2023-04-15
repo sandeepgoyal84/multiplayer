@@ -140,6 +140,10 @@ function HLSVideoPlayer({ video, selectedId, onClose }) {
             player.on('dispose', () => {
                 videojs.log('player will dispose');
             });
+            player.on('error', () => {
+                disposePlayer();
+                constructPlayer();
+            });
             player.on('volumechange', () => {
                 videojs.log('volume changed');
                 videojs.log(player.volume());
