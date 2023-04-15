@@ -74,8 +74,8 @@ function HLSVideoPlayer({ video, selectedId, onClose }) {
             // Our <video> element will be the audio source.
             var source = audioCtx.createMediaElementSource(videoElement);
             const canvas = canvasRef.current;//config canvas
-            canvas.width = 380;
-            canvas.height = 150;
+            canvas.width = 20;
+            canvas.height = 160;
             const ctx = canvas.getContext("2d");
 
             //config audio analyzer
@@ -85,12 +85,13 @@ function HLSVideoPlayer({ video, selectedId, onClose }) {
                 dataArray = new Uint8Array(bufferLength),
                 WIDTH = canvas.width,
                 HEIGHT = canvas.height,
-                barWidth = (WIDTH / bufferLength) * 2.5;
+                barHeight = (HEIGHT / bufferLength) * 2.5;
             analyser.getByteTimeDomainData(dataArray);
 
             source.connect(analyser);
             analyser.connect(audioCtx.destination);
-            let barHeight = 0,
+            let barWidth = 0,
+                y = 0,
                 x = 0;
 
             //core logic for the visualizer
@@ -98,21 +99,22 @@ function HLSVideoPlayer({ video, selectedId, onClose }) {
             const renderFrame = () => {
                 ctx.fillStyle = "rgba(0,0,0,0)";
                 requestAnimationFrame(renderFrame);
+                y = 0;
                 x = 0;
                 analyser.getByteFrequencyData(dataArray);
-                ctx.clearRect(0, 0, WIDTH, HEIGHT);
-                ctx.fillRect(0, 0, WIDTH, HEIGHT);
+                ctx.clearRect(x, y, WIDTH, HEIGHT);
+                ctx.fillRect(x, y, WIDTH, HEIGHT);
 
                 for (let i = 0; i < bufferLength; i++) {
                     //color based upon frequency
-                    barHeight = dataArray[i];
+                    barWidth = dataArray[i];
                     let
-                        r = barHeight + 22 * (i / bufferLength),
+                        r = barWidth + 22 * (i / bufferLength),
                         g = 333 * (i / bufferLength),
                         b = 47;
                     ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-                    ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
-                    x += barWidth + 1;
+                    ctx.fillRect(x, y, barWidth , barHeight);
+                    y += barHeight + 1;
 
                     //Allows visualizer to overlay on a background/video by clearing the rects after painting.
                     // let timer = setTimeout(() => {
@@ -172,8 +174,9 @@ function HLSVideoPlayer({ video, selectedId, onClose }) {
                 <div style={{ flexGrow: 1 }}>{video.title}</div>
                 <div onClick={handleClose}>{"close"}</div>
             </div>
-            <div ref={videoRef} />
-            <canvas ref={canvasRef} className="canvas"></canvas>
+            <div style={{ position: "relative"}} ref={videoRef} >
+                <canvas style={{ position: "absolute", zIndex: "1000", left:"10px" }} ref={canvasRef} className="canvas"></canvas>
+            </div>
             <div style={{ display: 'flex', justifyContent: "center", alignContent: 'baseline', background: "blue" }}>
                 <label style={{ color: "white", fontFamily: "verdana", fontSize: "0.75em" }} htmlFor="volume-control">Volume:</label>
                 <input type="range"
