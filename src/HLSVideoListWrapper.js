@@ -23,7 +23,7 @@ function HLSVideoListWrapper({
           key={vid.id}
           style={{
             border:
-              selectedVideo && selectedVideo.id === vid.id
+            highLightVideo && highLightVideo.id === vid.id
                 ? "2px solid red"
                 : "2px solid black",
           }}
