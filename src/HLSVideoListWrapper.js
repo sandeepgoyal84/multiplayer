@@ -1,26 +1,42 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import HLSVideoPlayer from './HLSVideoPlayer';
+import React, { useEffect, useState } from "react";
+import HLSVideoPlayer from "./HLSVideoPlayer";
 
-function HLSVideoListWrapper({ playingVideos, selectedId, onClose }) {
-    const [highLightId, setHighLightId] = useState('');
-    const [videoUrl, setVideoUrl] = useState('');
+function HLSVideoListWrapper({
+  playingVideos,
+  selectedVideo,
+  refreshVideo,
+  onClose,
+}) {
+  const [highLightVideo, setHighLightVideo] = useState(null);
 
-    const highLightVideo = (id) => {
-        //alert(id);
-        setHighLightId(id);
-    }
-    useEffect(() => {
-        setHighLightId(selectedId.id);
-    }, [selectedId]);
+  const handleHighLightVideo = (video) => {
+    setHighLightVideo(video);
+  };
+  useEffect(() => {
+    setHighLightVideo(selectedVideo);
+  }, [selectedVideo]);
 
-    return (
-        <div style={{ display: "flex", flexWrap: "wrap" }}>
-            {playingVideos.map((vid) => (
-                <div key={vid.id} style={{border: highLightId === vid.id ? "2px solid red" : "2px solid black" }} onClick={() => highLightVideo(vid.id)}>
-                    <HLSVideoPlayer video={vid} selectedId={selectedId} onClose={onClose} />
-                </div>
-            ))}
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap" }}>
+      {playingVideos.map((vid) => (
+        <div
+          key={vid.id}
+          style={{
+            border:
+              selectedVideo && selectedVideo.id === vid.id
+                ? "2px solid red"
+                : "2px solid black",
+          }}
+          onClick={() => handleHighLightVideo(vid)}
+        >
+          <HLSVideoPlayer
+            video={vid}
+            refreshVideo={refreshVideo}
+            onClose={onClose}
+          />
         </div>
-    )
+      ))}
+    </div>
+  );
 }
 export default HLSVideoListWrapper;
