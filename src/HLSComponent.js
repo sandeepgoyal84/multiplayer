@@ -57,9 +57,9 @@ function HLSComponent() {
 
       setPlayingVideos((oldState) => [...oldState, ...videosToAdd]);
       // last index of videoNumbers should be shown as selected
-      setSelectedVideo(videoList[videosToAdd[-1]]);
+      setSelectedVideo(videosToAdd[videosToAdd.length - 1]);
     },
-    [videoList, playingVideos, maxAllowedVideos.Current]
+    [playingVideos, maxAllowedVideos.Current]
   );
 
   // remove video from playingvideos
@@ -93,9 +93,14 @@ function HLSComponent() {
   // handle request for playing a single video
   const handleAddSingleVideo = useCallback(
     (video) => {
-      AddVideoToPlayingVideos(video);
+      //remove all video indexs whice already being played
+      if (!playingVideos.some((ele) => ele.id === video.id)) {
+        AddVideoToPlayingVideos([video]);
+      } else {
+        setSelectedVideo(video);
+      }
     },
-    [AddVideoToPlayingVideos]
+    [AddVideoToPlayingVideos, playingVideos]
   );
 
   // handle request for playing video as list or comma seperated value
@@ -108,7 +113,7 @@ function HLSComponent() {
     } else if (/^(\s*\d+\s*)-(\s*\d+\s*)$/g.test(reqVids)) {
       const vidIdx = reqVids.split("-").map((x) => parseInt(x.trim()) - 1);
       //generate number sequence
-      videoNumbers = Array(vidIdx[1] - vidIdx[0])
+      videoNumbers = Array(vidIdx[1] - vidIdx[0] + 1)
         .fill()
         .map((element, index) => index + vidIdx[0]);
     } else {
@@ -117,7 +122,7 @@ function HLSComponent() {
 
     // check for out of index values
     if (videoNumbers.some((num) => num >= videoList.length)) {
-      alert("invalid indexs are there, please correct");
+      alert("invalid indexs(out of Index) are there, please correct");
       return;
     }
     //remove all video indexs whice already being played
@@ -185,7 +190,7 @@ function HLSComponent() {
     // add to playingVideos
     setPlayingVideos(autoPlayVideoList);
   }, []);
-
+  useEffect(() => {}, [playingVideos]);
   return (
     <div
       style={{ flexGrow: "1", display: "flex", justifyContent: "space-evenly" }}
