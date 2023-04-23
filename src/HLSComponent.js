@@ -1,8 +1,9 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 import HLSVideoListWrapper from "./HLSVideoListWrapper";
 import HLSVideoLink from "./HLSVideoLink";
 import videoData from "./videos.json";
 import * as Helper from "./helper.js";
+import * as Constants from "./constants.js";
 import "./App.css";
 
 function HLSComponent() {
@@ -16,7 +17,7 @@ function HLSComponent() {
   const [addVideoInput, setAddVideoInput] = useState("");
   const [addVideosPatternInput, setAddVideosPatternInput] = useState("");
 
-  const MAXVIDEOS = 9;
+  const maxAllowedVideos = useRef(0);
 
   // refresh/restart the video
   const restartVideo = useCallback((video) => {
@@ -28,21 +29,27 @@ function HLSComponent() {
   const AddVideoToPlayingVideos = useCallback(
     (videosToAdd) => {
       // if there new different video ut already play list is full then return with app mess
-      if (playingVideos.length === MAXVIDEOS) {
+      if (playingVideos.length === maxAllowedVideos.Current) {
         alert(
-          `at max ${MAXVIDEOS} video can be played, please close few videos first`
+          `at max ${maxAllowedVideos.Current} video can be played, please close few videos first`
         );
         return;
       }
       // Check video limit
-      if (playingVideos.length + videosToAdd.length > MAXVIDEOS) {
+      if (
+        playingVideos.length + videosToAdd.length >
+        maxAllowedVideos.Current
+      ) {
         alert(
-          `at max ${MAXVIDEOS} video can be played, first ${
-            MAXVIDEOS - playingVideos.length
+          `at max ${maxAllowedVideos.Current} video can be played, first ${
+            maxAllowedVideos.Current - playingVideos.length
           } videos will be played, please close few videos first then resumit`
         );
       }
-      videosToAdd = videosToAdd.slice(0, MAXVIDEOS - playingVideos.length);
+      videosToAdd = videosToAdd.slice(
+        0,
+        maxAllowedVideos.Current - playingVideos.length
+      );
 
       // Actively saving videos to local storage otherwise can be used via useEffect
 
@@ -52,7 +59,7 @@ function HLSComponent() {
       // last index of videoNumbers should be shown as selected
       setSelectedVideo(videoList[videosToAdd[-1]]);
     },
-    [videoList, playingVideos]
+    [videoList, playingVideos, maxAllowedVideos.Current]
   );
 
   // remove video from playingvideos
@@ -72,17 +79,14 @@ function HLSComponent() {
 
   // add custom video url to playing list
   const handleCustomVideoAdd = () => {
-    let indx = videoList.length;
-    setVideoList((oldState) => [
-      ...oldState,
-      {
-        src: addVideoInput,
-        title: addVideoInput,
-        poster: "",
-        id: "" + oldState.length,
-      },
-    ]);
-    AddVideoToPlayingVideos([indx]);
+    const video = {
+      src: addVideoInput,
+      title: addVideoInput,
+      poster: "",
+      id: "" + videoList.length,
+    };
+    setVideoList((oldState) => [...oldState, video]);
+    AddVideoToPlayingVideos([video]);
     setAddVideoInput("");
   };
 
@@ -147,30 +151,39 @@ function HLSComponent() {
     // set to state variable
     setVideoList((oldState) => [...videos]);
 
+    // to handle case where total available videos are less than MAX_VIDEOS_ALLOWED
+    maxAllowedVideos.Current = Math.min(
+      Constants.MAX_VIDEOS_ALLOWED,
+      videos.length
+    );
+    let autoPlayVideoList = [];
+
     // fetch to get lat played videos
     const lastPlayed = Helper.getLastPlayListFromLocalStore();
-
-    // sanitize last last played videos
-    let sanitizedLastPlayedVideos = [];
-    let maxVideosVal = MAXVIDEOS;
-    for (let i = 0; i < lastPlayed.length; i++) {
-      let matchedVideo = videos.find((ele) => ele.id === lastPlayed[i].id);
-      if (matchedVideo) {
-        // add if not already present
-        if (
-          maxVideosVal > 0 &&
-          !sanitizedLastPlayedVideos.some((ele) => ele.id === matchedVideo.id)
-        ) {
-          sanitizedLastPlayedVideos.push(matchedVideo);
-          maxVideosVal--;
+    if (lastPlayed.length === 0) {
+      autoPlayVideoList = videos.slice(0, maxAllowedVideos.Current);
+    } else {
+      // sanitize last last played videos
+      let addedVideos = 0;
+      for (let i = 0; i < lastPlayed.length; i++) {
+        let matchedVideo = videos.find((ele) => ele.id === lastPlayed[i].id);
+        if (matchedVideo) {
+          // add if not already present
+          if (
+            addedVideos <= maxAllowedVideos.Current &&
+            !autoPlayVideoList.some((ele) => ele.id === matchedVideo.id)
+          ) {
+            autoPlayVideoList.push(matchedVideo);
+            addedVideos++;
+          }
         }
       }
     }
     // save sanitized videos to local storage
-    Helper.updateLastPlayListInLocalStore(sanitizedLastPlayedVideos);
+    Helper.updateLastPlayListInLocalStore(autoPlayVideoList);
 
     // add to playingVideos
-    setPlayingVideos(sanitizedLastPlayedVideos);
+    setPlayingVideos(autoPlayVideoList);
   }, []);
 
   return (

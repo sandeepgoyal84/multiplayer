@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import videojs from "video.js";
+import * as Constants from "./constants.js";
 import "video.js/dist/video-js.css";
 import "./App.css";
 
@@ -189,7 +190,10 @@ function HLSVideoPlayer({ video, refreshVideo, onClose }) {
           wordBreak: "break-all",
         }}
       >
-        <div style={{ flexGrow: 1 }}>{video.title}</div>
+        <div style={{ flexGrow: 1 }}>
+          {video.title.slice(0, Constants.MAX_CHAR_COUNT) +
+            (video.title.length > Constants.MAX_CHAR_COUNT ? "..." : "")}
+        </div>
         <div onClick={handleClose}>{"close"}</div>
       </div>
       <div style={{ position: "relative" }} ref={videoRef}>

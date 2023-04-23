@@ -1,7 +1,7 @@
 import React from "react";
+import * as Constants from "./constants.js";
 
 function HLSVideoLink({ projectVideo, video, restart, isRestartVisible }) {
-  const charCount = 10;
   return (
     <div
       style={{
@@ -12,8 +12,8 @@ function HLSVideoLink({ projectVideo, video, restart, isRestartVisible }) {
       }}
     >
       <div style={{ flexGrow: 1 }} onClick={() => projectVideo(video)}>
-        {video.title.slice(0, charCount) +
-          (video.title.length > charCount ? "..." : "")}
+        {video.title.slice(0, Constants.MAX_CHAR_COUNT) +
+          (video.title.length > Constants.MAX_CHAR_COUNT ? "..." : "")}
       </div>
       {isRestartVisible && (
         <div
